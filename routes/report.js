@@ -7,16 +7,12 @@ const jwt = require('jsonwebtoken');
 const { VALID_REGIONS } = require('../constants');
 
 // ---------------------
-// Middleware to check JWT
+// Auth middleware
 // ---------------------
 const auth = (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ','');
-    if (!token) {
-      const error = new Error("No token, authorization denied");
-      error.status = 401;
-      throw error;
-    }
+    if (!token) throw Object.assign(new Error("No token, authorization denied"), { status: 401 });
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded.id;
@@ -32,22 +28,46 @@ const auth = (req, res, next) => {
 router.post('/', auth, async (req, res, next) => {
   try {
     const { type, description, location, image } = req.body;
-    if (!type || !description || !location || !location.region) {
-      const error = new Error("Type, description, and location.region are required");
-      error.status = 400;
-      throw error;
+    if (!type || !description || !location || !location.region || location.lat == null || location.lng == null) {
+      throw Object.assign(
+        new Error("Type, description, location.region, location.lat, and location.lng are required"),
+        { status: 400 }
+      );
     }
 
-    // ✅ Region validation
     if (!VALID_REGIONS.includes(location.region)) {
-      const error = new Error(`Invalid region. Must be one of: ${VALID_REGIONS.join(', ')}`);
-      error.status = 400;
-      throw error;
+      throw Object.assign(
+        new Error(`Invalid region. Must be one of: ${VALID_REGIONS.join(', ')}`),
+        { status: 400 }
+      );
     }
 
     const report = new Report({ type, description, location, image, user: req.user });
     await report.save();
     res.status(201).json({ message: "Report submitted", report });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ---------------------
+// Filter reports
+// ---------------------
+router.get('/filter', async (req, res, next) => {
+  try {
+    const { category, region } = req.query;
+    const filter = {};
+    if (category) filter.type = category;
+    if (region && !VALID_REGIONS.includes(region)) {
+      throw Object.assign(
+        new Error(`Invalid region filter. Must be one of: ${VALID_REGIONS.join(', ')}`),
+        { status: 400 }
+      );
+    }
+    if (region) filter['location.region'] = region;
+
+    const reports = await Report.find(filter).populate('user', 'username email');
+    res.json(reports);
   } catch (err) {
     next(err);
   }
@@ -66,38 +86,13 @@ router.get('/', async (req, res, next) => {
 });
 
 // ---------------------
-// Get single report
+// Get report by ID
 // ---------------------
 router.get('/:id', async (req, res, next) => {
   try {
     const report = await Report.findById(req.params.id).populate('user', 'username email');
-    if (!report) {
-      const error = new Error("Report not found");
-      error.status = 404;
-      throw error;
-    }
+    if (!report) throw Object.assign(new Error("Report not found"), { status: 404 });
     res.json(report);
-  } catch (err) {
-    next(err);
-  }
-});
-
-// ---------------------
-// Filter reports
-// ---------------------
-router.get('/filter', async (req, res, next) => {
-  try {
-    const { category, region } = req.query;
-    const filter = {};
-    if (category) filter.type = category;
-    if (region && !VALID_REGIONS.includes(region)) {
-      const error = new Error(`Invalid region filter. Must be one of: ${VALID_REGIONS.join(', ')}`);
-      error.status = 400;
-      throw error;
-    }
-    
-    const reports = await Report.find(filter).populate('user', 'username email');
-    res.json(reports);
   } catch (err) {
     next(err);
   }
