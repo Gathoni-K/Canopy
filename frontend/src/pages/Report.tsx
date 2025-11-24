@@ -6,7 +6,7 @@ const Report = () => {
             <Layout>
 
             Report
-            {/* more content of page here */}
+            {/* more content of page herer */}
             </Layout>
         </div>
     )
