@@ -2,6 +2,7 @@ import Layout from "../components/layout/Layout";
 import Location from "../components/ui/Location";
 import Map from "../components/sections/Map";
 import LineGraph from "../components/sections/LineGraph";
+import PieChart from "../components/sections/PieChart";
 
 const Dashboard = () => {
     return (
@@ -21,6 +22,7 @@ const Dashboard = () => {
             {/* container for both charts */}
             <div className="mt-4 grid md:grid-cols-2">
                 <LineGraph />
+                <PieChart />
 
             </div>
             </Layout>
