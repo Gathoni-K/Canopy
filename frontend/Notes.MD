@@ -41,35 +41,50 @@
 2.Create a Generic chart component:
     '
 
-    import { Line, Bar, Pie } from "react-chartjs-2";
-    import type { ChartOptions, ChartData } from "chart.js";
+    import { Line, Pie, Bar } from "react-chartjs-2";
+    import type { ChartData, ChartOptions } from "chart.js";
 
-    type ChartType = "line" | "bar" | "pie";
-
-    type GenericChartProps<T extends ChartType> = {
-        type: T;
-        data: ChartData<T>;
-        options?: ChartOptions<T>;
-    } & React.ComponentProps<typeof Line | typeof Bar | typeof Pie>;
-
-    const GenericChart = <T extends ChartType>({ 
-        type, 
-        data, 
-        options,
-        ...props 
-    }: GenericChartProps<T>) => {
-        const chartTypes = {
-            line: Line,
-            bar: Bar,
-            pie: Pie
-        } as const;
-        
-        const ChartComponent = chartTypes[type];
-        
-        return <ChartComponent data={data as any} options={options as any} {...props} />;
+    type LineChartProps = {
+    type: "line";
+    data: ChartData<"line">;
+    options?: ChartOptions<"line">;
     };
 
-    export default GenericChart;
+    type PieChartProps = {
+    type: "pie";
+    data: ChartData<"pie">;
+    options?: ChartOptions<"pie">;
+    };
+
+    type BarChartProps = {
+    type: "bar";
+    data: ChartData<"bar">;
+    options?: ChartOptions<"bar">;
+    };
+
+    type GenericChartProps =
+    | LineChartProps
+    | PieChartProps
+    | BarChartProps;
+
+    const GenericChart = (props: GenericChartProps) => {
+    switch (props.type) {
+        case "line":
+        return <Line data={props.data} options={props.options} />;
+
+        case "pie":
+        return <Pie data={props.data} options={props.options} />;
+
+        case "bar":
+        return <Bar data={props.data} options={props.options} />;
+
+        default:
+        return null;
+    }
+};
+
+export default GenericChart;
+
 
 
 
