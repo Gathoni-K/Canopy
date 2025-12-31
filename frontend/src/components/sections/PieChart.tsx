@@ -1,45 +1,41 @@
 import GenericChart from "../charts/GenericChart";
 import type { ChartData, ChartOptions } from "chart.js";
 
-const PieChart = () => {
-    const data: ChartData<"pie"> = {
-        labels: [
-            "Red",
-            "Yellow",
-            "Green",
-        ],
+type PieChartProps = {
+    deforestation: number;
+    wildfires: number;
+    afforestation: number;
+};
+
+const PieChart = ({
+    deforestation,
+    wildfires,
+    afforestation,
+    }: PieChartProps) => {
+const data: ChartData<"pie"> = {
+        labels: ["Deforestation", "Wild fires", "Afforestation"],
         datasets: [
-            {
-                label: "Forest Data over The Years",
-                data: [250, 50, 300],
-                backgroundColor: [
-                    "rgb(240, 12, 35)",
-                    "rgb(255, 241, 66)",
-                    "rgb(21, 158, 43)",
-                ],
-                hoverOffset: 4,
-            }
+        {
+            data: [deforestation, wildfires, afforestation],
+            backgroundColor: [
+            "rgb(240, 12, 35)",
+            "rgb(255, 241, 66)",
+            "rgb(21, 158, 43)",
+            ],
+        },
         ],
     };
 
     const options: ChartOptions<"pie"> = {
         responsive: true,
         plugins: {
-            legend: {
-                display: true,
-                position: "top",
-            },
-            title: {
-                display: true,
-                text: "Forest Distribution",
-            },
+        title: { display: true, text: "Forest Distribution" },
         },
     };
 
     return (
-        <div style={{ width: "400px", margin: "0 auto" }}
-        className="bg-stone-50 rounded-lg">
-            <GenericChart type="pie" data={data} options={options} />
+        <div className="bg-stone-50 rounded-lg w-[400px] mx-auto">
+        <GenericChart type="pie" data={data} options={options} />
         </div>
     );
 };

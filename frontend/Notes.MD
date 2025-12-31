@@ -1,6 +1,6 @@
-**Project Setup**
+# Project Setup
 
-# Charts
+## Charts
 -Install using:
     '
 
@@ -13,7 +13,7 @@
 
     import { ChartName } from "react-chartjs-2";
 
-# LineChart
+## LineChart
 1.Register the Chart.js components, in chartSetup.js
 -The file should be inside the charts folder and is imported once in main.jsx.
     '
@@ -137,3 +137,10 @@ export default GenericChart;
     return (
         <GenericChart type="line" data={data} options={options} />
     )
+
+##  Setting the co-ordinates of the map.
+    '
+
+    center={[51.505, -0.09]}
+-The above is an array rep [latitude, longitude]
+-Set startup location to Karura forest, co-ordinates being [-1.247221, 36.81712]
